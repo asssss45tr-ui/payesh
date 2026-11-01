@@ -14,7 +14,13 @@ jobs:
           gradle-version: 8.11.1
       - name: Add API key
         run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> local.properties
-      - run: gradle assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log; grep -nE "error:|e: |What went wrong|FAILURE|not found|SDK location" -A4 build.log | head -60; exit ${PIPESTATUS[0]}
+      - name: Build
+        run: |
+          set +e
+          gradle assembleDebug --no-daemon --stacktrace > build.log 2>&1
+          code=$?
+          grep -nE "error:|e: |What went wrong|FAILURE|not found|SDK location" -A4 build.log | head -60
+          exit $code
       - uses: actions/upload-artifact@v4
         with:
           name: payesh-apk
